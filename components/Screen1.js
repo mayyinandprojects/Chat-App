@@ -1,0 +1,126 @@
+import { useState } from "react";
+import {
+  ImageBackground,
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
+
+const colors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"]; 
+
+const Screen1 = ({ navigation }) => {
+  const [name, setName] = useState("");
+  const [backgroundColor, setBackgroundColor] = useState(""); 
+
+  return (
+    <ImageBackground
+      source={require('../images/bg-img.png')} 
+      style={styles.background}
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>App Title</Text>
+        <View style={styles.whiteBox}>
+          <TextInput
+            style={styles.textInput}
+            value={name}
+            onChangeText={setName}
+            placeholder="Your name"
+            placeholderTextColor="rgba(117, 112, 131, 0.5)" 
+          />
+          
+          <Text style={styles.chooseColorText}>Choose background color:</Text>
+          
+          <View style={styles.colorPickerContainer}>
+            {colors.map((color) => (
+              <TouchableOpacity
+                key={color}
+                style={[styles.colorCircle, { backgroundColor: color }]}
+                onPress={() => setBackgroundColor(color)} // Set the selected color
+              />
+            ))}
+          </View>
+
+          <TouchableOpacity
+            style={styles.startChatButton}
+            onPress={() => navigation.navigate("Screen2", { name, backgroundColor })} 
+          >
+            <Text style={styles.startChatButtonText}>Start Chatting</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ImageBackground>
+  );
+};
+
+const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  container: {
+    flex: 1,
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 45,
+    fontWeight: "600",
+    color: "#FFFFFF",
+    marginTop: 50, 
+  },
+  whiteBox: {
+    width: "88%",
+    height: "44%",
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+    position: "absolute",
+    bottom: 20, 
+  },
+  textInput: {
+    width: "100%",
+    padding: 15,
+    borderWidth: 1,
+    borderColor: "#757083",
+    fontSize: 16,
+    fontWeight: "300",
+    color: "#757083",
+    opacity: 0.5, 
+    marginBottom: 20, 
+    borderRadius: 5, 
+  },
+  chooseColorText: {
+    fontSize: 16,
+    fontWeight: "300",
+    color: "#757083", 
+    marginBottom: 10,
+  },
+  colorPickerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between", 
+    marginBottom: 20, 
+    width: "100%", 
+  },
+  colorCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 25, 
+    marginHorizontal: 8,
+  },
+  startChatButton: {
+    width: "88%", 
+    padding: 15,
+    backgroundColor: "#757083",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  startChatButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFFFFF",
+  },
+});
+
+export default Screen1;
