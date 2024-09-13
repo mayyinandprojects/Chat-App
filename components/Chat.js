@@ -1,62 +1,73 @@
 import { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  View,
-  Platform,
-  KeyboardAvoidingView,
-} from "react-native";
+import { StyleSheet, View, Platform, KeyboardAvoidingView } from "react-native";
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  limit,
+} from "firebase/firestore";
 
-const Chat = ({ route, navigation }) => {
-  //props passed from Start.js via route.params
-  const { name, backgroundColor } = route.params;
+const Chat = ({ route, navigation, db }) => {
+  const { name, userID, backgroundColor } = route.params;
+
   //initializing useState
   const [messages, setMessages] = useState([]);
 
   const onSend = (newMessages) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, newMessages)
-    );
+    // Add the first message from newMessages to Firestore
+    addDoc(collection(db, "messages"), newMessages[0]);
   };
 
   const renderBubble = (props) => {
-    return <Bubble
-      {...props}
-      wrapperStyle={{
-        right: {
-          backgroundColor: "grey"
-        },
-        left: {
-          backgroundColor: "#FFF"
-        }
-      }}
-    />
-  }
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          right: {
+            backgroundColor: "grey",
+          },
+          left: {
+            backgroundColor: "#FFF",
+          },
+        }}
+      />
+    );
+  };
 
   useEffect(() => {
     navigation.setOptions({ title: name });
   }, [navigation, name]);
 
   useEffect(() => {
-    setMessages([
-      {
-        _id: 1,
-        text: 'Hello developer',
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
-        },
-      },
-      {
-        _id: 2,
-        text: 'Beginning of chat',
-        createdAt: new Date(),
-        system: true,
-      },
-    ]);
-  }, []);
+    console.log("Firestore DB in Chat.js: ", db); // Ensure db is not undefined
+
+    if (db) {
+      console.log("Testing collection call...");
+      const messagesCollection = collection(db, "messages");
+      console.log("Messages collection: ", messagesCollection); // Should log a valid CollectionReference
+
+      const q = query(messagesCollection, orderBy("createdAt", "desc"));
+
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const fetchedMessages = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            _id: doc.id,
+            text: data.text,
+            createdAt: data.createdAt.toDate(), // Convert Firestore Timestamp to Date
+            user: data.user,
+          };
+        });
+        setMessages(fetchedMessages); // Update state with new messages
+      });
+
+      return () => unsubscribe(); // Clean up listener when component unmounts
+    }
+  }, [db]);
 
   return (
     <View style={[styles.container, { backgroundColor: backgroundColor }]}>
@@ -69,13 +80,16 @@ const Chat = ({ route, navigation }) => {
         renderBubble={renderBubble}
         onSend={(messages) => onSend(messages)}
         user={{
-          _id: 1,
+          _id: userID,  // Set userID as _id
+          name: name,   // Set name of the user
         }}
       />
       {Platform.OS === "android" ? (
         <KeyboardAvoidingView behavior="height" />
       ) : null}
-      {Platform.OS === "ios"?<KeyboardAvoidingView behavior="padding" />: null}
+      {Platform.OS === "ios" ? (
+        <KeyboardAvoidingView behavior="padding" />
+      ) : null}
     </View>
   );
 };

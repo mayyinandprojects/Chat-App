@@ -6,17 +6,38 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from "react-native";
+import { getAuth, signInAnonymously } from "firebase/auth";
 
-const colors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"]; 
+const colors = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"];
 
 const Start = ({ navigation }) => {
   const [name, setName] = useState("");
-  const [backgroundColor, setBackgroundColor] = useState(""); 
+  const [backgroundColor, setBackgroundColor] = useState("");
+
+  // Initialize Firebase Authentication
+  const auth = getAuth();
+
+  // Handle anonymous sign-in and navigate to Chat screen
+  const signInUser = () => {
+    signInAnonymously(auth)
+      .then((result) => {
+        navigation.navigate("Chat", {
+          name: name, // User-entered name
+          backgroundColor: backgroundColor, // Selected background color
+          userID: result.user.uid, // Firebase user ID
+        });
+        Alert.alert("Signed in Successfully!");
+      })
+      .catch((error) => {
+        Alert.alert("Unable to sign in, try later again.");
+      });
+  };
 
   return (
     <ImageBackground
-      source={require('../images/bg-img.png')} 
+      source={require("../images/bg-img.png")}
       style={styles.background}
     >
       <View style={styles.container}>
@@ -27,11 +48,11 @@ const Start = ({ navigation }) => {
             value={name}
             onChangeText={setName}
             placeholder="Your name"
-            placeholderTextColor="rgba(117, 112, 131, 0.5)" 
+            placeholderTextColor="rgba(117, 112, 131, 0.5)"
           />
-          
+
           <Text style={styles.chooseColorText}>Choose background color:</Text>
-          
+
           <View style={styles.colorPickerContainer}>
             {colors.map((color) => (
               <TouchableOpacity
@@ -44,7 +65,7 @@ const Start = ({ navigation }) => {
 
           <TouchableOpacity
             style={styles.startChatButton}
-            onPress={() => navigation.navigate("Chat", { name, backgroundColor })} 
+            onPress={signInUser} // Call signInUser when button is pressed
           >
             <Text style={styles.startChatButtonText}>Start Chatting</Text>
           </TouchableOpacity>
@@ -67,19 +88,16 @@ const styles = StyleSheet.create({
     fontSize: 45,
     fontWeight: "600",
     color: "#FFFFFF",
-    marginTop: 50, 
+    marginTop: 50,
   },
   whiteBox: {
-    // width: "88%",
-    // height: "44%",
-    // justifyContent: "center",
     backgroundColor: "#FFFFFF",
     alignItems: "center",
     position: "absolute",
     padding: 20,
     margin: 20,
-    bottom: 20, 
-    flex:1,
+    bottom: 20,
+    flex: 1,
     flexDirection: "column",
     justifyContent: "space-between",
   },
@@ -91,30 +109,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "300",
     color: "#757083",
-    opacity: 0.5, 
-    marginBottom: 20, 
-    borderRadius: 5, 
+    opacity: 0.5,
+    marginBottom: 20,
+    borderRadius: 5,
   },
   chooseColorText: {
     fontSize: 16,
     fontWeight: "300",
-    color: "#757083", 
+    color: "#757083",
     marginBottom: 10,
   },
   colorPickerContainer: {
     flexDirection: "row",
-    justifyContent: "space-between", 
-    marginBottom: 20, 
-    width: "100%", 
+    justifyContent: "space-between",
+    marginBottom: 20,
+    width: "100%",
   },
   colorCircle: {
     width: 40,
     height: 40,
-    borderRadius: 25, 
+    borderRadius: 25,
     marginHorizontal: 8,
   },
   startChatButton: {
-    width: "88%", 
+    width: "88%",
     padding: 15,
     backgroundColor: "#757083",
     justifyContent: "center",
