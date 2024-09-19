@@ -9,18 +9,16 @@ import {
   orderBy,
 } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import CustomActions from "./CustomActions";
+// import * as Location from "expo-location";
+import MapView from "react-native-maps";
 
-const Chat = ({ route, navigation, db, isConnected }) => {
+const Chat = ({ route, navigation, db, isConnected, storage }) => {
   console.log("isConnected: " + isConnected);
   const { name, userID, backgroundColor } = route.params;
 
   //initializing useState
   const [messages, setMessages] = useState([]);
-
-  const onSend = (newMessages) => {
-    // Add the first message from newMessages to Firestore
-    addDoc(collection(db, "messages"), newMessages[0]);
-  };
 
   const cacheMessages = async (messagesCache) => {
     try {
@@ -35,7 +33,8 @@ const Chat = ({ route, navigation, db, isConnected }) => {
   };
 
   const loadCachedMessages = async () => {
-    const cachedMessages = (await AsyncStorage.getItem("messagesCache")) || "[]"; // Return empty array as a string
+    const cachedMessages =
+      (await AsyncStorage.getItem("messagesCache")) || "[]"; // Return empty array as a string
     setMessages(JSON.parse(cachedMessages)); // Parse cached messages
     console.log("cachedMessages:", cachedMessages);
   };
@@ -65,7 +64,6 @@ const Chat = ({ route, navigation, db, isConnected }) => {
   useEffect(() => {
     console.log("isConnected: " + isConnected);
     if (isConnected === true) {
-      
       // unregister current onSnapshot() listener to avoid registering multiple listeners when
       // useEffect code is re-executed.
       if (unsubscribe) unsubscribe();
@@ -86,45 +84,49 @@ const Chat = ({ route, navigation, db, isConnected }) => {
               user: data.user,
             };
           });
+
           cacheMessages(fetchedMessages); //store Messages in cache
           setMessages(fetchedMessages); // Update state with new messages
         });
-      }} else loadCachedMessages();
+      }
+    } else loadCachedMessages();
 
-      return () => {if (unsubscribe) unsubscribe();}; // Clean up listener when component unmounts
-    
+    return () => {
+      if (unsubscribe) unsubscribe();
+    }; // Clean up listener when component unmounts
   }, [isConnected]);
-
-  // useEffect(() => {
-  //   console.log("Firestore DB in Chat.js: ", db);
-
-  //   if (db) {
-  //     console.log("Testing collection call...");
-  //     const messagesCollection = collection(db, "messages");
-  //     console.log("Messages collection: ", messagesCollection);
-
-  //     const q = query(messagesCollection, orderBy("createdAt", "desc"));
-
-  //     const unsubscribe = onSnapshot(q, (snapshot) => {
-  //       const fetchedMessages = snapshot.docs.map((doc) => {
-  //         const data = doc.data();
-  //         return {
-  //           _id: doc.id,
-  //           text: data.text,
-  //           createdAt: data.createdAt.toDate(),
-  //           user: data.user,
-  //         };
-  //       });
-  //       setMessages(fetchedMessages);
-  //     });
-
-  //     return () => unsubscribe();
-  //   }
-  // }, [db]);
 
   const renderInputToolbar = (props) => {
     if (isConnected) return <InputToolbar {...props} />;
     else return null;
+  };
+
+  //The renderCustomActions function is responsible for creating the circle button
+  const renderCustomActions = (props) => {
+    return <CustomActions userID={userID} storage={storage} onSend={onSend} {...props} />;
+  };
+
+  const onSend = (newMessages) => {
+    // Add the first message from newMessages to Firestore
+    addDoc(collection(db, "messages"), newMessages[0]);
+  };
+
+  const renderCustomView = (props) => {
+    const { currentMessage } = props;
+    if (currentMessage.location) {
+      return (
+        <MapView
+          style={{ width: 150, height: 100, borderRadius: 13, margin: 3 }}
+          region={{
+            latitude: currentMessage.location.latitude,
+            longitude: currentMessage.location.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      );
+    }
+    return null;
   };
 
   return (
@@ -138,6 +140,8 @@ const Chat = ({ route, navigation, db, isConnected }) => {
         renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
         onSend={(messages) => onSend(messages)}
+        renderActions={renderCustomActions}
+        renderCustomView={renderCustomView}
         user={{
           _id: userID, // Set userID as _id
           name: name, // Set name of the user
