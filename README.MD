@@ -43,12 +43,12 @@ This is a real-time chat application built using React Native, Firebase, and Exp
 
 ## Setup
 1. Create a Firebase Project:
-- Go to the Firebase Console.
+- Go to the Firebase Console (console.firebase.google.com).
 - Create a new project.
 - Add a Web app to the project and copy the Firebase configuration settings.
 
 2. Set up Firestore and Storage:
-- In your Firebase console (console.firebase.google.com), navigate to Firestore Database and create a new database.
+- In your Firebase console, navigate to Firestore Database and create a new database.
 - Navigate to Storage and set up Firebase Storage.
 
 3. Create the .env file:
@@ -72,7 +72,7 @@ This is a real-time chat application built using React Native, Firebase, and Exp
 - Scan the QR code displayed in your terminal or browser to run the app on your device.
 
 
-##Contributing
+## Contributing
 Contributions are welcome! Please open an issue or submit a pull request for any enhancements or bug fixes.
 
 ## Licensing
