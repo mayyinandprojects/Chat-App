@@ -41,7 +41,7 @@ const Start = ({ navigation }) => {
       style={styles.background}
     >
       <View style={styles.container}>
-        <Text style={styles.title}>App Title</Text>
+        <Text style={styles.title}>Chat App</Text>
         <View style={styles.whiteBox}>
           <TextInput
             style={styles.textInput}

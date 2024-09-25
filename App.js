@@ -1,3 +1,4 @@
+import Constants from "expo-constants";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { initializeApp } from "firebase/app";
@@ -18,14 +19,14 @@ import { getStorage } from "firebase/storage";
 
 const Stack = createNativeStackNavigator();
 
+//check the README.MD for how to setup the .env file with your Firebase Config
 const firebaseConfig = {
-  //FIREBASE CONFIG INFO
-  apiKey: "AIzaSyAWYti8ZFurz4mDzreb__heAdcxZAio4ac",
-  authDomain: "chatapp-98e8c.firebaseapp.com",
-  projectId: "chatapp-98e8c",
-  storageBucket: "chatapp-98e8c.appspot.com",
-  messagingSenderId: "668830217330",
-  appId: "1:668830217330:web:6ba7aa62b33469bb483eeb",
+  apiKey: Constants.expoConfig.extra.apiKey,
+  authDomain: Constants.expoConfig.extra.authDomain,
+  projectId: Constants.expoConfig.extra.projectId,
+  storageBucket: Constants.expoConfig.extra.storageBucket,
+  messagingSenderId: Constants.expoConfig.extra.messagingSenderId,
+  appId: Constants.expoConfig.extra.appId,
 };
 
 // Initialize Firebase
