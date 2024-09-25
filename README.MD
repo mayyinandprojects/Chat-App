@@ -1,6 +1,6 @@
 # Chat Application
 
-This is a real-time chat application built using React Native, Firebase, and Expo. It allows users to send messages, images, and their current location.
+This is a real-time chat application built using React Native, Firebase, and Expo. It allows users to send messages, images, and their current location. This project is made for educational purpose as part of my Career Foundry Fullstack Web Development Bootcamp. 
 
 ## Table of Contents
 - [Features](#features)
